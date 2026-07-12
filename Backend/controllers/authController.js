@@ -2,10 +2,9 @@ import bcrypt from "bcrypt";
 import User from "../models/userSchema.js";
 import jwt from "jsonwebtoken";
 import { sendOTPEmail } from "../services/authMail.js";
-
+ 
 export const registerUser = async (req, res) => {
     try {
-        console.log(req.body);
         const { fullName, email, password } = req.body;
 
         // Validate input
@@ -129,6 +128,10 @@ export const verifyOTP = async (req, res) => {
                 id: user._id,
                 email: user.email,
                 fullName: user.fullName,
+                role: user.role,
+                organizationId: user.organizationId,
+                organizationInvitations: user.organizationInvitations,
+                inviteAccepted: user.inviteAccepted
             },
             process.env.JWT_SECRET,
             {
@@ -148,9 +151,12 @@ export const verifyOTP = async (req, res) => {
             message: "Email verified successfully.",
             user: {
                 id: user._id,
-                fullName: user.fullName,
                 email: user.email,
-                isVerified: user.isVerified,
+                fullName: user.fullName,
+                role: user.role,
+                organizationId: user.organizationId,
+                organizationInvitations: user.organizationInvitations,
+                inviteAccepted: user.inviteAccepted
             },
         });
 
@@ -204,7 +210,11 @@ export const handleLogin = async (req, res) => {
             {
                 id: user._id,
                 email: user.email,
-                fullName: user.fullName
+                fullName: user.fullName,
+                role: user.role,
+                organizationId: user.organizationId,
+                organizationInvitations: user.organizationInvitations,
+                inviteAccepted: user.inviteAccepted
             },
             process.env.JWT_SECRET,
             {
@@ -226,9 +236,12 @@ export const handleLogin = async (req, res) => {
             message: "Login successful.",
             user: {
                 id: user._id,
-                fullName: user.fullName,
                 email: user.email,
-                isVerified: user.isVerified,
+                fullName: user.fullName,
+                role: user.role,
+                organizationId: user.organizationId,
+                organizationInvitations: user.organizationInvitations,
+                inviteAccepted: user.inviteAccepted
             },
         });
 
@@ -241,3 +254,56 @@ export const handleLogin = async (req, res) => {
         });
     }
 };
+
+export const verifyUserToken = async (req, res) => {
+    try {
+      // 1️⃣ Read token from cookies
+      const token = req.cookies?.token;
+
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "Authentication required verifyUserToken",
+          navigate: "/login",
+        });
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded.id).select("-password");
+
+      // 2️⃣ Verify token
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid or expired token verifyUserToken",
+          navigate: "/login",
+        });
+      }
+
+      // 3️⃣ Attach user to request
+      req.user = user;
+
+      // 4️⃣ Continue
+      return res.status(200).json({
+        success: true,
+        message: "Token is valid",
+        user: {
+                id: user._id,
+                email: user.email,
+                fullName: user.fullName,
+                role: user.role,
+                organizationId: user.organizationId,
+                organizationInvitations: user.organizationInvitations,
+                inviteAccepted: user.inviteAccepted
+        },
+      });
+
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Authentication failed verifyUserToken",
+        navigate: "/login",
+      });
+    }
+  }
