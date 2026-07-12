@@ -2,21 +2,37 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Layout from "./Layout";
 
-import { Login, Signup, Home} from "./components";
-import ManageStaff from "./components/middle/settings/ManageStaff";
+import {
+    Login,
+    Signup,
+    ProtectedWrapper,
+    NavigationConfig,
+} from "./components";
 
 function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route element={<Layout />}>
-                    <Route path="/home" element={<Home />} />
-                    {/* <Route path="/new-project" element={<NewProject />} /> */}
-                    <Route path="/settings" element={<ManageStaff />} />
-                </Route>
-
+                {/* Public Routes */}
                 <Route path="/" element={<Signup />} />
                 <Route path="/login" element={<Login />} />
+
+                {/* Protected Routes */}
+                <Route element={<Layout />}>
+                    {NavigationConfig.map((route) => (
+                        <Route
+                            key={route.path}
+                            element={
+                                <ProtectedWrapper allowedRoles={route.roles} />
+                            }
+                        >
+                            <Route
+                                path={route.path}
+                                element={route.element}
+                            />
+                        </Route>
+                    ))}
+                </Route>
             </Routes>
         </BrowserRouter>
     );
