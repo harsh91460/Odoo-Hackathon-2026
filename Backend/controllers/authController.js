@@ -5,7 +5,6 @@ import { sendOTPEmail } from "../services/authMail.js";
 
 export const registerUser = async (req, res) => {
     try {
-        console.log(req.body);
         const { fullName, email, password } = req.body;
 
         // Validate input
