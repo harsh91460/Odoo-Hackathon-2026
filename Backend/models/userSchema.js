@@ -20,11 +20,51 @@ const userSchema  = new mongoose.Schema({
 
     role: {
         type: String,
-        enum: ["user", "admin"],
-        default: "user"
+        enum: [
+            "User",
+            "Fleet Manager",
+            "Dispatcher",
+            "Safety Officer",
+            "Financial Analyst"
+        ],
+        default: "User"
     },
 
     isVerified: {
+        type: Boolean,
+        default: false
+    },
+
+    organizationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Organization",
+        required: true,
+        default: null,
+        index: true
+    },
+
+    organizationInvitations: [
+        {
+            organizationId: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Organization",
+                required: true
+            },
+
+            role: {
+                type: String,
+                enum: [
+                    "Fleet Manager",
+                    "Dispatcher",
+                    "Safety Officer",
+                    "Financial Analyst"
+                ],
+                required: true
+            }
+        }
+    ],
+
+    inviteAccepted: {
         type: Boolean,
         default: false
     },
