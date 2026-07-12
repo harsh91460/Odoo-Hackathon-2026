@@ -14,7 +14,7 @@ export default function ProtectedWrapper({ allowedRoles = [] }) {
 
     const { status, userInfo } = useSelector((state) => state.auth);
     // console.log ("userInfo protected ", userInfo)
-    // console.log("allowed roles",allowedRoles)
+    console.log("allowed roles",allowedRoles)
 
     console.log(allowedRoles.includes(userInfo?.role))
 

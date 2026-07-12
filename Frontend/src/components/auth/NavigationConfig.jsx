@@ -26,6 +26,7 @@ const navigationConfig = [
         element: <Home />,
         roles: [
             "User",
+            "Fleet Manager"
         ],
     },
 
